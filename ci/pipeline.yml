@@ -1,0 +1,34 @@
+---
+resources:
+- name: code
+  type: git
+  source:
+    uri: https://github.com/niclasgeiger/concourse-test
+    branch: release
+#- name: send-email
+#  type: email
+#  source:
+#    from: niclasgeiger1@googlemail.com
+
+jobs:
+- name: Build-it
+  plan:
+  - get: code
+    params:
+      globs:
+      - fly_linux_amd64
+    trigger: true
+  - task: build
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: docker/golang
+          tag: "1.10.3-alpine3.7"
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          echo "Output of build job. It gets automatically triggered by any changes in the resource."
