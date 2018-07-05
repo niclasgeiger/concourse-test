@@ -58,7 +58,3 @@ func TestCalculator_Do(t *testing.T) {
 		})
 	}
 }
-
-func TestFail(t *testing.T) {
-	assert.Equal(t, true, false)
-}

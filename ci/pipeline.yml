@@ -12,16 +12,6 @@ resources:
     username: {{docker-name}}
     password: {{docker-password}}
 
-- name: send-email
-  type: email
-  source:
-    host: {{email-host}}
-    port: "465"
-    username: {{email-from}}
-    password: {{email-password}}
-    from: {{email-from}}
-    to: {{email-to}}
-
 jobs:
 - name: Test-it
   plan:
@@ -29,11 +19,6 @@ jobs:
     trigger: true
   - task: unit-test
     file: code/ci/tasks/unit-test.yml
-    on_failure:
-      put: send-email
-      params:
-        subject_text: "failed unit test"
-        body_text: "Build just failed."
 
 - name: Build-it
   plan:
