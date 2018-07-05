@@ -1,4 +1,13 @@
 ---
+resource_types:
+- name: email
+  type: docker-image
+  source:
+    repository: pcfseceng/email-resource
+- name: helm
+  type: docker-image
+  source:
+    repository: linkyard/concourse-helm-resource
 resources:
 - name: code
   type: git
@@ -12,6 +21,17 @@ resources:
     username: {{docker-name}}
     password: {{docker-password}}
 
+#- name: send-email
+#  type: email
+#  source:
+#    smtp:
+#      host: {{email-host}}
+#      port: "465"
+#      username: {{email-from}}
+#      password: {{email-password}}
+#    from: {{email-from}}
+#    to: ["niclas.geiger@netlight.com"]
+
 jobs:
 - name: Test-it
   plan:
@@ -19,6 +39,11 @@ jobs:
     trigger: true
   - task: unit-test
     file: code/ci/tasks/unit-test.yml
+#    on_success:
+#      put: send-email
+#      params:
+#        subject_text: "successful unit test"
+#        body_text: "Unit test was passed."
 
 - name: Build-it
   plan:
