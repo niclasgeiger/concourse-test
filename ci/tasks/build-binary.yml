@@ -3,9 +3,9 @@ config:
   inputs:
   - name: code
     path: /gopath/src/github.com/niclasgeiger/concourse-test
-  outputs:
-  - name: binary
-    path: /bin/main
+#  outputs:
+#  - name: binary
+#    path: /bin/main
   image_resource:
     type: docker-image
     source:
