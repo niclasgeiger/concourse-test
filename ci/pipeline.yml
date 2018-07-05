@@ -15,29 +15,8 @@ jobs:
   plan:
   - get: code
     trigger: true
-  - task: build
-    config:
-      platform: linux
-      inputs:
-      - name: code
-        path: /gopath/src/github.com/niclasgeiger/concourse-test
-      outputs:
-      - name: binary
-        path: /bin/main
-      image_resource:
-        type: docker-image
-        source:
-          repository: golang
-          tag: "1.10.3-alpine3.7"
-      run:
-        path: sh
-        args:
-        - -exc
-        - |
-          ls
-          export GOPATH=$(pwd)/gopath:$(pwd)/gopath/src/github.com/niclasgeiger/concourse-test
-          cd gopath/src/github.com/niclasgeiger/concourse-test
-          CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /bin/main .
+  - task: build-binary
+    file: code/ci/tasks/build-binary.yml
 
 - name: Test-it
   plan:
@@ -68,8 +47,7 @@ jobs:
 
 - name: Build-image
   plan:
-  - get: binary
-    get: code
+  - get: code
     trigger: true
     passed:
     - Test-it
@@ -91,4 +69,6 @@ jobs:
         args:
         - -exc
         - |
-          ls
+          export GOPATH=$(pwd)/gopath:$(pwd)/gopath/src/github.com/niclasgeiger/concourse-test
+          cd gopath/src/github.com/niclasgeiger/concourse-test
+          CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /bin/main .
