@@ -5,6 +5,13 @@ resources:
   source:
     uri: https://github.com/niclasgeiger/concourse-test
     branch: release
+#- name: image
+#  type: docker-image
+#  source:
+#    repository: niclasgeiger/concourse-test
+#    username: (( docker-name ))
+#    password: (( docker-password ))
+
 #- name: send-email
 #  type: email
 #  source:
@@ -17,6 +24,24 @@ jobs:
     trigger: true
   - task: build-binary
     file: code/ci/tasks/build-binary.yml
+  - task: check_it
+    config:
+      platform: linux
+      inputs:
+      - name: binary
+      image_resource:
+        type: docker-image
+        source:
+          repository: busybox
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          ls -la
+          ls -la binary
+          ls -la bin
+          ls -la bin/main
 
 - name: Test-it
   plan:
@@ -29,7 +54,7 @@ jobs:
       platform: linux
       inputs:
       - name: code
-        path: /gopath/src/github.com/niclasgeiger/concourse-test
+        path: gopath/src/github.com/niclasgeiger/concourse-test
       image_resource:
         type: docker-image
         source:
@@ -40,7 +65,6 @@ jobs:
         args:
         - -exc
         - |
-          ls
           export GOPATH=$(pwd)/gopath:$(pwd)/gopath/src/github.com/niclasgeiger/concourse-test
           cd gopath/src/github.com/niclasgeiger/concourse-test
           go test ./... -v
@@ -51,24 +75,9 @@ jobs:
     trigger: true
     passed:
     - Test-it
-  - task: build-image
-    config:
-      platform: linux
-      inputs:
-      - name: code
-        path: gopath/src/github.com/niclasgeiger/concourse-test
-      - name: binary
-        path: bin/main
-      image_resource:
-        type: docker-image
-        source:
-          repository: golang  # TODO: use different image
-          tag: "1.10.3-alpine3.7"
-      run:
-        path: sh
-        args:
-        - -exc
-        - |
-          export GOPATH=$(pwd)/gopath:$(pwd)/gopath/src/github.com/niclasgeiger/concourse-test
-          cd gopath/src/github.com/niclasgeiger/concourse-test
-          CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /bin/main .
+#  - out: image
+#    build: code
+
+  - task: build-binary
+    file: code/ci/tasks/build-binary.yml
+
