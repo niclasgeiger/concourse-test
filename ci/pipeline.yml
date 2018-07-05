@@ -22,25 +22,8 @@ jobs:
   plan:
   - get: code
     trigger: true
-  - task: build
-    config:
-      platform: linux
-      inputs:
-      - name: code
-        path: gopath/src/github.com/niclasgeiger/concourse-test
-      image_resource:
-        type: docker-image
-        source:
-          repository: golang
-          tag: "1.10.3-alpine3.7"
-      run:
-        path: sh
-        args:
-        - -exc
-        - |
-          export GOPATH=$(pwd)/gopath:$(pwd)/gopath/src/github.com/niclasgeiger/concourse-test
-          cd gopath/src/github.com/niclasgeiger/concourse-test
-          go test ./... -v
+  - task: unit-test
+    file: code/ci/tasks/unit-test.yml
 
 - name: Build-it
   plan:
