@@ -5,12 +5,12 @@ resources:
   source:
     uri: https://github.com/niclasgeiger/concourse-test
     branch: release
-#- name: image
-#  type: docker-image
-#  source:
-#    repository: niclasgeiger/concourse-test
-#    username: (( docker-name ))
-#    password: (( docker-password ))
+- name: image
+  type: docker-image
+  source:
+    repository: niclasgeiger/concourse-test
+    username: {{docker-name}}
+    password: {{docker-password}}
 
 #- name: send-email
 #  type: email
@@ -18,37 +18,10 @@ resources:
 #    from: niclasgeiger1@googlemail.com
 
 jobs:
-- name: Build-it
-  plan:
-  - get: code
-    trigger: true
-  - task: build-binary
-    file: code/ci/tasks/build-binary.yml
-  - task: check_it
-    config:
-      platform: linux
-      inputs:
-      - name: binary
-      image_resource:
-        type: docker-image
-        source:
-          repository: busybox
-      run:
-        path: sh
-        args:
-        - -exc
-        - |
-          ls -la
-          ls -la binary
-          ls -la bin
-          ls -la bin/main
-
 - name: Test-it
   plan:
   - get: code
     trigger: true
-    passed:
-    - Build-it
   - task: build
     config:
       platform: linux
@@ -69,15 +42,15 @@ jobs:
           cd gopath/src/github.com/niclasgeiger/concourse-test
           go test ./... -v
 
-- name: Build-image
+- name: Build-it
   plan:
   - get: code
     trigger: true
     passed:
     - Test-it
-#  - out: image
-#    build: code
-
   - task: build-binary
     file: code/ci/tasks/build-binary.yml
+  - put: image
+    params:
+      build: binary
 

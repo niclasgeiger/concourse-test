@@ -4,7 +4,7 @@ inputs:
   path: gopath/src/github.com/niclasgeiger/concourse-test
 outputs:
 - name: binary
-  path: bin/main
+  path: compiled
 image_resource:
   type: docker-image
   source:
@@ -16,6 +16,5 @@ run:
   - -exc
   - |
     export GOPATH=$(pwd)/gopath:$(pwd)/gopath/src/github.com/niclasgeiger/concourse-test
-    cd gopath/src/github.com/niclasgeiger/concourse-test
-    CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o bin/main .
-    ls -la bin
+    CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o compiled/main github.com/niclasgeiger/concourse-test
+    cp gopath/src/github.com/niclasgeiger/concourse-test/Dockerfile compiled/Dockerfile
